@@ -5,8 +5,7 @@ import java.util.Random;
 public class Game {
     private int score;
     private int moves;
-    private Board board;
-
+    public Board board;
 
     public Game() {
         board = new Board();
@@ -34,6 +33,10 @@ public class Game {
         return false;
     }
 
+    public int getMoves() {
+        return moves;
+    }
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
@@ -58,6 +61,12 @@ public class Game {
 
         board.placeRandomTile();
         board.placeRandomTile();
+    }
+
+    public void initializeEmpty() {
+        board = new Board();
+        score = 0;
+        moves = 0;
     }
 
     public void move(Direction direction) {
@@ -171,8 +180,7 @@ public class Game {
 
         if (hasMoved) {
             board.placeRandomTile();
-            if (!board.isOver())
-                moves++;
+            moves++;
         } else {
             board.checkIsOver();
         }

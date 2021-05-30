@@ -4,7 +4,7 @@ import java.util.Random;
 
 public class Board {
     private int[][] field;
-    private Random random;
+    public Random random;
     private boolean isOver;
 
     public Board() {
