@@ -3,14 +3,13 @@ package spw4.game2048;
 import java.util.Random;
 
 public class Game {
-    private int[][] field;
     private int score;
     private int moves;
-    private Random random;
-    private boolean isOver;
+    private Board board;
+
 
     public Game() {
-        random = new Random();
+        board = new Board();
     }
 
     public int getScore() {
@@ -21,13 +20,13 @@ public class Game {
         if (isWon())
             return true;
         else
-            return isOver;
+            return board.isOver();
     }
 
     public boolean isWon() {
         for(int x = 0; x < 4; x++) {
             for (int y = 0; y < 4; y++) {
-                if (field [x][y] == 2048) {
+                if (board.getTile(x, y) == 2048) {
                     return true;
                 }
             }
@@ -42,10 +41,10 @@ public class Game {
         sb.append("Moves: ").append(moves).append("\tScore: ").append(getScore()).append("\n");
         for(int x = 0; x < 4; x++) {
             for (int y = 0; y < 4; y++) {
-                if (field[x][y] == 0)
+                if (board.getTile(x, y) == 0)
                     sb.append(".\t");
                 else
-                    sb.append(field[x][y]).append("\t");
+                    sb.append(board.getTile(x, y)).append("\t");
             }
             sb.append("\n");
         }
@@ -53,49 +52,12 @@ public class Game {
     }
 
     public void initialize() {
-        field = new int[][]{{0, 0, 0, 0},
-                            {0, 0, 0, 0},
-                            {0, 0, 0, 0},
-                            {0, 0, 0, 0}};
+        board = new Board();
         score = 0;
         moves = 0;
-        isOver = false;
 
-        try{
-//            placeRandomTile();
-//            placeRandomTile();
-        } catch (Exception ignored) { } //ignored because calls will always succeed
-    }
-
-    private void placeRandomTile() throws NoFreeTileException{
-        if (isOver())
-            return;
-
-        if (!hasEmptyField()) throw new NoFreeTileException();
-
-        int x = random.nextInt(4);
-        int y = random.nextInt(4);
-        while (field[x][y] != 0) {
-            x = random.nextInt(4);
-            y = random.nextInt(4);
-        }
-
-        int poss = random.nextInt(10);
-        if (poss < 9)
-            field[x][y] = 2;
-        else
-            field[x][y] = 4;
-    }
-
-    private boolean hasEmptyField() {
-        for (int x = 0; x < 4; x++) {
-            for (int y = 0; y < 4; y++) {
-                if (field[x][y] == 0) {
-                    return true;
-                }
-            }
-        }
-        return false;
+        board.placeRandomTile();
+        board.placeRandomTile();
     }
 
     public void move(Direction direction) {
@@ -105,20 +67,20 @@ public class Game {
                 for (int currentCellCol = 0; currentCellCol < 4; currentCellCol++) {
                     for (int currentCellRow = 0; currentCellRow < 4; currentCellRow++) {
                         for (int checkRow = currentCellRow + 1; checkRow < 4; checkRow++) {
-                            if (field[currentCellRow][currentCellCol] == 0) {
-                                if (field[checkRow][currentCellCol] != 0) {
-                                    field[currentCellRow][currentCellCol] = field[checkRow][currentCellCol];
-                                    field[checkRow][currentCellCol] = 0;
+                            if (board.getTile(currentCellRow, currentCellCol) == 0) {
+                                if (board.getTile(checkRow, currentCellCol) != 0) {
+                                    board.setTile(currentCellRow, currentCellCol, board.getTile(checkRow, currentCellCol));
+                                    board.setTile(checkRow, currentCellCol, 0);
                                     hasMoved = true;
                                 }
                             } else {
-                                if (field[currentCellRow][currentCellCol] == field[checkRow][currentCellCol]) {
-                                    field[currentCellRow][currentCellCol] = field[currentCellRow][currentCellCol] * 2;
-                                    score+= field[currentCellRow][currentCellCol];
-                                    field[checkRow][currentCellCol] = 0;
+                                if (board.getTile(currentCellRow, currentCellCol) == board.getTile(checkRow, currentCellCol)) {
+                                    board.setTile(currentCellRow, currentCellCol, board.getTile(currentCellRow, currentCellCol) * 2);
+                                    score += board.getTile(currentCellRow, currentCellCol);
+                                    board.setTile(checkRow, currentCellCol, 0);
                                     hasMoved = true;
                                     break;
-                                } else if (field[checkRow][currentCellCol] != 0) {
+                                } else if (board.getTile(checkRow, currentCellCol) != 0) {
                                     break;
                                 }
                             }
@@ -131,18 +93,20 @@ public class Game {
                 for (int currentCellCol = 3; currentCellCol >= 0; currentCellCol--) {
                     for (int currentCellRow = 3; currentCellRow >= 0; currentCellRow--) {
                         for (int checkRow = currentCellRow - 1; checkRow >= 0; checkRow--) {
-                            if (field[currentCellRow][currentCellCol] == 0) {
-                                if (field[checkRow][currentCellCol] != 0) {
-                                    field[currentCellRow][currentCellCol] = field[checkRow][currentCellCol];
-                                    field[checkRow][currentCellCol] = 0;
+                            if (board.getTile(currentCellRow, currentCellCol) == 0) {
+                                if (board.getTile(checkRow, currentCellCol) != 0) {
+                                    board.setTile(currentCellRow, currentCellCol, board.getTile(checkRow, currentCellCol));
+                                    board.setTile(checkRow, currentCellCol, 0);
+                                    hasMoved = true;
                                 }
                             } else {
-                                if (field[currentCellRow][currentCellCol] == field[checkRow][currentCellCol]) {
-                                    field[currentCellRow][currentCellCol] = field[currentCellRow][currentCellCol] * 2;
-                                    field[checkRow][currentCellCol] = 0;
-                                    score+= field[currentCellRow][currentCellCol];
+                                if (board.getTile(currentCellRow, currentCellCol) == board.getTile(checkRow, currentCellCol)) {
+                                    board.setTile(currentCellRow, currentCellCol, board.getTile(currentCellRow, currentCellCol) * 2);
+                                    board.setTile(checkRow, currentCellCol, 0);
+                                    score+= board.getTile(currentCellRow, currentCellCol);
+                                    hasMoved = true;
                                     break;
-                                } else if (field[checkRow][currentCellCol] != 0) {
+                                } else if (board.getTile(checkRow, currentCellCol) != 0) {
                                     break;
                                 }
                             }
@@ -155,18 +119,20 @@ public class Game {
                 for (int currentCellRow = 0; currentCellRow < 4; currentCellRow++) {
                     for (int currentCellCol = 0; currentCellCol < 4; currentCellCol++) {
                         for (int checkCol = currentCellCol + 1; checkCol < 4; checkCol++) {
-                            if (field[currentCellRow][currentCellCol] == 0) {
-                                if (field[currentCellRow][checkCol] != 0) {
-                                    field[currentCellRow][currentCellCol] = field[currentCellRow][checkCol];
-                                    field[currentCellRow][checkCol] = 0;
+                            if (board.getTile(currentCellRow, currentCellCol) == 0) {
+                                if (board.getTile(currentCellRow, checkCol) != 0) {
+                                    board.setTile(currentCellRow, currentCellCol, board.getTile(currentCellRow, checkCol));
+                                    board.setTile(currentCellRow, checkCol, 0);
+                                    hasMoved = true;
                                 }
                             } else {
-                                if (field[currentCellRow][currentCellCol] == field[currentCellRow][checkCol]) {
-                                    field[currentCellRow][currentCellCol] = field[currentCellRow][currentCellCol] * 2;
-                                    score += field[currentCellRow][currentCellCol];
-                                    field[currentCellRow][checkCol] = 0;
+                                if (board.getTile(currentCellRow, currentCellCol) == board.getTile(currentCellRow, checkCol)) {
+                                    board.setTile(currentCellRow, currentCellCol, board.getTile(currentCellRow, currentCellCol) * 2);
+                                    score += board.getTile(currentCellRow, currentCellCol);
+                                    board.setTile(currentCellRow, checkCol, 0);
+                                    hasMoved = true;
                                     break;
-                                } else if (field[currentCellRow][checkCol] != 0) {
+                                } else if (board.getTile(currentCellRow, checkCol) != 0) {
                                     break;
                                 }
                             }
@@ -179,18 +145,20 @@ public class Game {
                 for (int currentCellRow = 3; currentCellRow >= 0; currentCellRow--) {
                     for (int currentCellCol = 3; currentCellCol >= 0; currentCellCol--) {
                         for (int checkCol = currentCellCol - 1; checkCol >= 0; checkCol--) {
-                            if (field[currentCellRow][currentCellCol] == 0) {
-                                if (field[currentCellRow][checkCol] != 0) {
-                                    field[currentCellRow][currentCellCol] = field[currentCellRow][checkCol];
-                                    field[currentCellRow][checkCol] = 0;
+                            if (board.getTile(currentCellRow, currentCellCol) == 0) {
+                                if (board.getTile(currentCellRow, checkCol) != 0) {
+                                    board.setTile(currentCellRow, currentCellCol, board.getTile(currentCellRow, checkCol));
+                                    board.setTile(currentCellRow, checkCol, 0);
+                                    hasMoved = true;
                                 }
                             } else {
-                                if (field[currentCellRow][currentCellCol] == field[currentCellRow][checkCol]) {
-                                    field[currentCellRow][currentCellCol] = field[currentCellRow][currentCellCol] * 2;
-                                    score += field[currentCellRow][currentCellCol];
-                                    field[currentCellRow][checkCol] = 0;
+                                if (board.getTile(currentCellRow, currentCellCol) == board.getTile(currentCellRow, checkCol)) {
+                                    board.setTile(currentCellRow, currentCellCol, board.getTile(currentCellRow, currentCellCol) * 2);
+                                    score += board.getTile(currentCellRow, currentCellCol);
+                                    board.setTile(currentCellRow, checkCol, 0);
+                                    hasMoved = true;
                                     break;
-                                } else if (field[currentCellRow][checkCol] != 0) {
+                                } else if (board.getTile(currentCellRow, checkCol) != 0) {
                                     break;
                                 }
                             }
@@ -202,14 +170,11 @@ public class Game {
         }
 
         if (hasMoved) {
-            try{
+            board.placeRandomTile();
+            if (!board.isOver())
                 moves++;
-                placeRandomTile();
-            } catch (NoFreeTileException exception) {
-                isOver = true;
-            }
+        } else {
+            board.checkIsOver();
         }
     }
-
-    private static class NoFreeTileException extends Exception { }
 }

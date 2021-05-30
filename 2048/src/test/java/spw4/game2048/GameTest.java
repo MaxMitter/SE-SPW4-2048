@@ -2,7 +2,6 @@ package spw4.game2048;
 
 import org.junit.jupiter.api.*;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -16,6 +15,7 @@ public class GameTest {
     @BeforeEach
     void beforeEach() {
         g = new Game();
+        g.initialize();
     }
 
     @Test
@@ -30,6 +30,14 @@ public class GameTest {
         when(g_mock.isOver()).thenReturn(true);
 
         assertTrue(g_mock.isOver());
+    }
+
+    @Test
+    @DisplayName("isOver returns true when game is won")
+    public void isOver_WhenGameWon_ReturnsTrue() {
+        Game ga = spy(Game.class);
+        when(ga.isWon()).thenReturn(true);
+        assertTrue(ga.isOver());
     }
 
     @Test
@@ -49,7 +57,7 @@ public class GameTest {
     @Test
     @DisplayName("isWon returns false when game is not won")
     public void isWon_WhenGameBoardHasNo2048_ReturnsFalse() {
-        assertTrue(g.isWon());
+        assertFalse(g.isWon());
     }
 
     @Test
@@ -65,10 +73,12 @@ public class GameTest {
     @Test
     @DisplayName("isOver calls isWon exactly once")
     public void isOver_WhenGameIsRunning_CallsIsWonOnce() {
+        Game g_mock = spy(Game.class);
+        g_mock.initialize();
         g_mock.isOver();
 
         assertAll(
-                () -> verify(g_mock, times(1)).isOver()
+                () -> verify(g_mock, times(1)).isWon()
         );
     }
 
@@ -78,6 +88,5 @@ public class GameTest {
         g.initialize();
 
         int nonNull = 0;
-
     }
 }
